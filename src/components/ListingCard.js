@@ -1,21 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 
-function ListingCard() {
+function ListingCard({ id, description, image, location, onDeleteItem }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+  };
+
+  const favoriteClassName = isFavorite
+    ? "emoji-button favorite active"
+    : "emoji-button favorite";
+
+  function handleDelete() {
+    fetch(`http://localhost:6001/listings/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          // Successful deletion, you can update the UI here if needed
+          // For example, you can call a callback function to inform the parent component
+          onDeleteItem(id);
+        } else {
+          // Handle error (e.g., non-200 status codes) here
+          console.error("Failed to delete listing");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+    
+
+
+    
   return (
-    <li className="card">
+    <li className="card" id={id}>
       <div className="image">
         <span className="price">$0</span>
-        <img src={"https://via.placeholder.com/300x300"} alt={"description"} />
+        <img src={image} alt={description} />
       </div>
       <div className="details">
-        {true ? (
-          <button className="emoji-button favorite active">★</button>
-        ) : (
-          <button className="emoji-button favorite">☆</button>
-        )}
-        <strong>{"description"}</strong>
-        <span> · {"location"}</span>
-        <button className="emoji-button delete">🗑</button>
+        <button className={favoriteClassName} onClick={toggleFavorite}>
+          {isFavorite ? "★" : "☆"}
+        </button>
+        <strong>{description}</strong>
+        <span> · {location}</span>
+        <button onClick={handleDelete} className="emoji-button delete">🗑</button>
       </div>
     </li>
   );
